@@ -1,4 +1,7 @@
-import { sumar, restar, multiplicar, dividir, isFalse, isNull, isTrue, isUndefined, arrDias, arrProvincias, objExpReg } from '../index.js';
+import { sumar, restar, multiplicar, dividir } from '../index';
+import { isFalse, isNull, isTrue, isUndefined } from '../index';
+import { arrDias, arrProvincias, objExpReg } from '../index.js';
+import { callback, ajaxGet, } from '../index';
 
 describe('Operaciones matemáticas', () => {
     test('Realizamos la suma', () => {
@@ -87,7 +90,40 @@ describe('Matchers Strings', () => {
         expect(exp.telefono).toMatch(/^[9|6|7][0-9]{8}$/);
     });
 });
-afterEach(() => console.log('Despues de cada prueba'));
-afterAll(() => console.log("Despues de todas las pruebas"));
-beforeEach(() => console.log('Antes de cada prueba'));
-beforeAll(() => console.log('Antes de todas las pruebas'));
+describe('Asincrono - Callback', () => {
+    test('Callback', done => {
+        let callbackInterno = datos => {
+            expect(datos).toBe('Hola mundo callback');
+            done();
+        };
+        callback(callbackInterno);
+    })
+});
+describe('Asincrono - Promise(resolve, reject', () => {
+    test('Promise - Promise(resolve, reject', done => {
+        let url = "http://localhost:3000/posts";
+        ajaxGet(url).then(datos => {
+            const data = [{ id: 1, title: "json-server", author: "typicode" }];
+            expect(datos.length).toBeGreaterThanOrEqual(1);
+            expect(datos[0].id).toBeGreaterThanOrEqual(1);
+            expect(datos).toEqual(data);
+            done();
+        });            
+    });
+    test('Promise - .resolves', () => {
+        let url = "http://localhost:3000/profile";
+        return expect(ajaxGet(url)).resolves.toEqual({name: "typicode"});
+    });
+    test('Promise - .rejects', () => {
+        let url = "http://localhost:3000/fail";
+        return expect(ajaxGet(url)).rejects.toEqual('Not Found');
+    });
+    test('Promise - Promise.resolve', () => {
+        let data = { nombre: 'Test', estado: true };
+        return expect(Promise.resolve(data)).resolves.toEqual(data);
+    });
+    test('Promise - Promise.rejects', () => {
+        let data = { data: 'Error', code: 200 };
+        return expect(Promise.reject(data)).rejects.toEqual(data);
+    });
+});
